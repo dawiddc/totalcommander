@@ -98,9 +98,9 @@ public class MainPaneController implements Observer {
         leftCurrentPathField.setEditable(false);
         rightCurrentPathField.setEditable(false);
 
-        selectDefaultLanguage();
         prepareTables();
         listRoots();
+        selectDefaultLanguage();
     }
 
     @Override
@@ -158,6 +158,7 @@ public class MainPaneController implements Observer {
         rightTableSizeColumn.setText(resourceBundle.getString("table.size"));
         rightTableDateColumn.setText(resourceBundle.getString("table.date"));
         rightTableTypeColumn.setText(resourceBundle.getString("table.type"));
+        refreshTableViews();
     }
 
     private void listRoots() {
