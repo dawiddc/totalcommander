@@ -15,9 +15,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -30,6 +32,7 @@ public class MainPaneController implements Observer {
     private String rightCurrentPath;
 
     private Task copyTask;
+    private Task deleteTask;
     private ResourceBundle resourceBundle;
 
     @FXML
@@ -228,7 +231,10 @@ public class MainPaneController implements Observer {
 
     public void leftTableView_OnMouseClicked(MouseEvent event) {
         if (event.getClickCount() == 2) {
-            String name = leftTableView.getSelectionModel().getSelectedItem().getFileName();
+            String name = "";
+            if(!leftCurrentPathField.getText().endsWith("\\"))
+                name = "\\";
+            name += leftTableView.getSelectionModel().getSelectedItem().getFileName();
             String path = leftCurrentPathField.getText() + name;
             refreshTableView(path, leftTableView, leftCurrentPathField);
         }
@@ -257,8 +263,9 @@ public class MainPaneController implements Observer {
 
     private void refreshTableView(String refreshPath, TableView<SystemObject> tableView, TextField pathTextField) {
         List<SystemObject> systemObjectList = new ArrayList<>();
-
         SystemObject rootFile = new SystemObject(new File(refreshPath), resourceBundle);
+        String normalizedPath = FilenameUtils.normalize(rootFile.getFile().getAbsolutePath());
+        rootFile = new SystemObject(new File(normalizedPath), resourceBundle);
         if (rootFile.exists() && rootFile.isDirectory()) {
             systemObjectList = rootFile.listSystemFiles(resourceBundle);
         }
@@ -415,69 +422,67 @@ public class MainPaneController implements Observer {
     }
 
     public void deleteFiles(TableView tableView, String currentPath) {
+        List<SystemObject> fileObjects;
+        List<SystemObject> filesToDelete = new ArrayList<>();
+        File source;
+        if ((fileObjects = tableView.getSelectionModel().getSelectedItems()) != null){
+            for (SystemObject fileObject : fileObjects) {
+                source = new File(currentPath + fileObject.getFileName());
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle(resourceBundle.getString("alertDeleteTitle"));
+                alert.setHeaderText(resourceBundle.getString("alertDeleteHeader"));
+                alert.setContentText(resourceBundle.getString("alertDeleteContent") + "\n" + fileObject.getFileName());
 
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    filesToDelete.add(new SystemObject(fileObject.getFile(), resourceBundle));
+                }
+            }
+            if (!filesToDelete.isEmpty())
+                executeDelete(filesToDelete);
+        }
     }
-//        List<SystemObject> fileObjects;
-//        List<FileToDelete> filesToDelete = new ArrayList<>();
-//        File source;
-//        if ((fileObjects =  tableView.getSelectionModel().getSelectedItems()) != null){
-//            for (SystemObject fileObject : fileObjects) {
-//                source = new File(currentPath + fileObject.getFileName());
-//                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//                alert.setTitle(resourceBundle.getString("alertDeleteTitle"));
-//                alert.setHeaderText(resourceBundle.getString("alertDeleteHeader"));
-//                alert.setContentText(resourceBundle.getString("alertDeleteContent") + "\n" + fileObject.getFileName());
-//
-//                Optional<ButtonType> result = alert.showAndWait();
-//                if (result.get() == ButtonType.OK) {
-//                    filesToDelete.add(new FileToDelete(fileObject.getFileName(), source));
-//                }
-//            }
-//            if (!filesToDelete.isEmpty())
-//                executeDelete(filesToDelete);
-//        }
-//    }
-//
-//    private void executeDelete(List<FileToDelete> filesToDelete){
-//        //File backup = new File(filesToDelete.get(0).getSource().toString() + "..\\backup");
-//        try {
-//            showWaitingBox(1);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//        deleteTask = new Task() {
-//            @Override
-//            protected Void call() throws Exception {
-//                Thread.sleep(1000);
-//                //FileUtils.forceMkdir(backup);
-//                for (FileToDelete fileToDelete : filesToDelete) {
-//                    if (!fileToDelete.getSource().isDirectory()) {
-//                        //FileUtils.copyFile(fileToDelete.getSource(), backup);
-//                        FileUtils.forceDelete(fileToDelete.getSource());
-//                    } else {
-//                        // FileUtils.copyDirectory(fileToDelete.getSource(), backup);
-//                        FileUtils.deleteDirectory(fileToDelete.getSource());
-//                    }
-//                }
-//                return null;
-//            }
-//        };
-//        new Thread(deleteTask).start();
-//
-//        deleteTask.setOnSucceeded(e -> {
-//            waitingBoxStage.close();
-//            //cleanBackup(backup);
-//            refreshTableViews();
-//        });
-//        deleteTask.setOnCancelled(e -> {
-//            refreshTableViews();
-//        });
-//    }
+
+    private void executeDelete(List<SystemObject> filesToDelete) {
+                //File backup = new File(filesToDelete.get(0).getSource().toString() + "..\\backup");
+        try {
+            showWaitingBox(1);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        deleteTask = new Task() {
+            @Override
+            protected Void call() throws Exception {
+                Thread.sleep(1000);
+                //FileUtils.forceMkdir(backup);
+                for (SystemObject fileToDelete : filesToDelete) {
+                    if (!fileToDelete.isDirectory()) {
+                        //FileUtils.copyFile(fileToDelete.getSource(), backup);
+                        FileUtils.forceDelete(fileToDelete.getFile());
+                    } else {
+                        // FileUtils.copyDirectory(fileToDelete.getSource(), backup);
+                        FileUtils.deleteDirectory(fileToDelete.getFile());
+                    }
+                }
+                return null;
+            }
+        };
+        new Thread(deleteTask).start();
+
+        deleteTask.setOnSucceeded(e -> {
+            waitingBoxStage.close();
+            //cleanBackup(backup);
+            refreshTableViews();
+        });
+        deleteTask.setOnCancelled(e -> {
+            refreshTableViews();
+        });
+    }
 
 
     public void cancelAction() {
         copyTask.cancel();
-//        deleteTask.cancel;
-//        moveTask.cancel;
+        deleteTask.cancel();
+//        moveTask.cancel();
     }
 }
