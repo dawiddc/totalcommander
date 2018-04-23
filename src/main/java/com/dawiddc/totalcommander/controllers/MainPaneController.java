@@ -174,7 +174,8 @@ public class MainPaneController implements Observer {
         File[] roots = File.listRoots();
         for (File root : roots) {
             if (!root.toString().equals("A:\\"))
-                rootsList.add(root.toString());
+                if(root.listFiles() != null)
+                    rootsList.add(root.toString());
         }
         leftRootChoicebox.setItems(rootsList);
         rightRootChoicebox.setItems(rootsList);
@@ -446,7 +447,7 @@ public class MainPaneController implements Observer {
     private void executeDelete(List<SystemObject> filesToDelete) {
                 //File backup = new File(filesToDelete.get(0).getSource().toString() + "..\\backup");
         try {
-            showWaitingBox(1);
+//            showWaitingBox(1);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -470,7 +471,7 @@ public class MainPaneController implements Observer {
         new Thread(deleteTask).start();
 
         deleteTask.setOnSucceeded(e -> {
-            waitingBoxStage.close();
+//            waitingBoxStage.close();
             //cleanBackup(backup);
             refreshTableViews();
         });
