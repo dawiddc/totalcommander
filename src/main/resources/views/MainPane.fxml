@@ -2,9 +2,11 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8"
+            minWidth="-Infinity"
+            prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8"
             fx:controller="com.dawiddc.totalcommander.controllers.MainPaneController">
     <top>
         <VBox BorderPane.alignment="CENTER">
@@ -27,7 +29,51 @@
                         </Menu>
                     </menus>
                 </MenuBar>
-                <ToolBar/>
+                <SplitPane dividerPositions="0.5">
+                    <items>
+                        <AnchorPane>
+                            <children>
+                                <ToolBar AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                         AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <items>
+                                        <ChoiceBox fx:id="leftRootChoicebox" onAction="#leftRootChoicebox_OnAction"
+                                                   prefWidth="75.0"/>
+                                        <Button fx:id="leftRefreshButton" mnemonicParsing="false"
+                                                onAction="#refreshLeft" text="%refresh"/>
+                                        <Separator orientation="VERTICAL"/>
+                                        <Button fx:id="leftCopyButton" mnemonicParsing="false" onAction="#copyToRight"
+                                                text="%copy"/>
+                                        <Button fx:id="leftMoveButton" mnemonicParsing="false" onAction="#moveToRight"
+                                                text="%move"/>
+                                        <Button fx:id="leftDeleteButton" mnemonicParsing="false"
+                                                onAction="#deleteFromLeft" text="%delete"/>
+                                    </items>
+                                </ToolBar>
+                            </children>
+                        </AnchorPane>
+                        <AnchorPane>
+                            <children>
+                                <ToolBar prefHeight="40.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0"
+                                         AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                         AnchorPane.topAnchor="0.0">
+                                    <items>
+                                        <ChoiceBox fx:id="rightRootChoicebox" onAction="#rightRootChoicebox_OnAction"
+                                                   prefWidth="75.0"/>
+                                        <Button fx:id="rightRefreshButton" mnemonicParsing="false"
+                                                onAction="#refreshRight" text="%refresh"/>
+                                        <Separator orientation="VERTICAL"/>
+                                        <Button fx:id="rightCopyButton" mnemonicParsing="false" onAction="#copyToLeft"
+                                                text="%copy"/>
+                                        <Button fx:id="rightMoveButton" mnemonicParsing="false" onAction="#moveToLeft"
+                                                text="%move"/>
+                                        <Button fx:id="rightDeleteButton" mnemonicParsing="false"
+                                                onAction="#deleteFromRight" text="%delete"/>
+                                    </items>
+                                </ToolBar>
+                            </children>
+                        </AnchorPane>
+                    </items>
+                </SplitPane>
             </children>
         </VBox>
     </top>
@@ -42,7 +88,7 @@
                             </HBox.margin>
                         </ProgressBar>
                         <Button fx:id="cancelActionButton" alignment="CENTER_RIGHT" mnemonicParsing="false"
-                                text="%cancel"/>
+                                onAction="#cancelAction" text="%cancel"/>
                     </children>
                     <padding>
                         <Insets left="50.0"/>
@@ -63,51 +109,48 @@
     <center>
         <AnchorPane BorderPane.alignment="CENTER">
             <children>
-                <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <SplitPane dividerPositions="0.4988738738738739" AnchorPane.bottomAnchor="0.0"
+                           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <items>
-                        <VBox prefHeight="200.0" prefWidth="100.0">
+                        <VBox>
                             <children>
                                 <AnchorPane>
                                     <children>
-                                        <HBox spacing="10.0">
-                                            <children>
-                                                <ChoiceBox fx:id="leftRootDropdown" prefWidth="75.0"/>
-                                                <Button fx:id="leftRefreshButton" mnemonicParsing="false"
-                                                        text="%refresh"/>
-                                                <Separator orientation="VERTICAL"/>
-                                                <Button fx:id="leftCopyButton" mnemonicParsing="false" text="%copy"/>
-                                                <Button fx:id="leftMoveButton" mnemonicParsing="false" text="%move"/>
-                                                <Button fx:id="leftDeleteButton" mnemonicParsing="false"
-                                                        text="%delete"/>
-                                            </children>
-                                            <padding>
-                                                <Insets left="5.0"/>
-                                            </padding>
-                                        </HBox>
-                                    </children>
-                                    <padding>
-                                        <Insets bottom="3.0" top="3.0"/>
-                                    </padding>
-                                </AnchorPane>
-                                <AnchorPane>
-                                    <children>
                                         <Label text="%path" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="5.0"/>
-                                        <TextField fx:id="pathLeftField" maxWidth="1.7976931348623157E308"
+                                        <TextField fx:id="leftCurrentPathField" maxWidth="1.7976931348623157E308"
                                                    AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="5.0"/>
                                     </children>
                                     <padding>
                                         <Insets bottom="3.0"/>
                                     </padding>
                                 </AnchorPane>
-                                <TableView VBox.vgrow="ALWAYS">
+                                <TableView fx:id="leftTableView" VBox.vgrow="ALWAYS">
                                     <columns>
-                                        <TableColumn maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0"
-                                                     text="%table.name"/>
-                                        <TableColumn maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0"
-                                                     text="%table.size"/>
-                                        <TableColumn maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0"
-                                                     text="%table.date"/>
+                                        <TableColumn fx:id="leftTableNameColumn" maxWidth="-1.0" minWidth="-1.0"
+                                                     prefWidth="-1.0" text="%table.name">
+                                            <cellValueFactory>
+                                                <PropertyValueFactory property="name"/>
+                                            </cellValueFactory>
+                                        </TableColumn>
+                                        <TableColumn fx:id="leftTableSizeColumn" maxWidth="-1.0" minWidth="-1.0"
+                                                     prefWidth="-1.0" text="%table.size">
+                                            <cellValueFactory>
+                                                <PropertyValueFactory property="size"/>
+                                            </cellValueFactory>
+                                        </TableColumn>
+                                        <TableColumn fx:id="leftTableDateColumn" maxWidth="-1.0" minWidth="-1.0"
+                                                     prefWidth="-1.0" text="%table.date">
+                                            <cellValueFactory>
+
+                                                <PropertyValueFactory property="date"/>
+                                            </cellValueFactory>
+                                        </TableColumn>
+                                        <TableColumn fx:id="leftTableTypeColumn" maxWidth="-1.0" minWidth="-1.0"
+                                                     prefWidth="-1.0" text="%table.type">
+                                            <cellValueFactory>
+                                                <PropertyValueFactory property="type"/>
+                                            </cellValueFactory>
+                                        </TableColumn>
                                     </columns>
                                 </TableView>
                             </children>
@@ -115,46 +158,44 @@
                                 <Insets top="3.0"/>
                             </padding>
                         </VBox>
-                        <VBox prefHeight="200.0" prefWidth="100.0">
+                        <VBox>
                             <children>
                                 <AnchorPane>
                                     <children>
-                                        <HBox spacing="10.0">
-                                            <children>
-                                                <ChoiceBox fx:id="rightRootDropdown" prefWidth="75.0"/>
-                                                <Button fx:id="rightRefreshButton" mnemonicParsing="false"
-                                                        text="%refresh"/>
-                                                <Separator orientation="VERTICAL"/>
-                                                <Button fx:id="rightCopyButton" mnemonicParsing="false" text="%copy"/>
-                                                <Button fx:id="rightMoveButton" mnemonicParsing="false" text="%move"/>
-                                                <Button fx:id="rightDeleteButton" mnemonicParsing="false"
-                                                        text="%delete"/>
-                                            </children>
-                                            <padding>
-                                                <Insets left="5.0"/>
-                                            </padding>
-                                        </HBox>
-                                    </children>
-                                    <padding>
-                                        <Insets bottom="3.0" top="3.0"/>
-                                    </padding>
-                                </AnchorPane>
-                                <AnchorPane>
-                                    <children>
                                         <Label text="%path" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="5.0"/>
-                                        <TextField fx:id="pathRightField" maxWidth="1.7976931348623157E308"
+                                        <TextField fx:id="rightCurrentPathField" maxWidth="1.7976931348623157E308"
                                                    AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="5.0"/>
                                     </children>
                                     <padding>
                                         <Insets bottom="3.0"/>
                                     </padding>
                                 </AnchorPane>
-                                <TableView VBox.vgrow="ALWAYS">
+                                <TableView fx:id="rightTableView" VBox.vgrow="ALWAYS">
                                     <columns>
-                                        <TableColumn prefWidth="75.0" text="%table.name"/>
-                                        <TableColumn prefWidth="75.0" text="%table.size"/>
-                                        <TableColumn maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0"
-                                                     text="%table.date"/>
+                                        <TableColumn fx:id="rightTableNameColumn" maxWidth="-1.0" minWidth="-1.0"
+                                                     prefWidth="-1.0" text="%table.name">
+                                            <cellValueFactory>
+                                                <PropertyValueFactory property="name"/>
+                                            </cellValueFactory>
+                                        </TableColumn>
+                                        <TableColumn fx:id="rightTableSizeColumn" maxWidth="-1.0" minWidth="-1.0"
+                                                     prefWidth="-1.0" text="%table.size">
+                                            <cellValueFactory>
+                                                <PropertyValueFactory property="size"/>
+                                            </cellValueFactory>
+                                        </TableColumn>
+                                        <TableColumn fx:id="rightTableDateColumn" maxWidth="-1.0" minWidth="-1.0"
+                                                     prefWidth="-1.0" text="%table.date">
+                                            <cellValueFactory>
+                                                <PropertyValueFactory property="date"/>
+                                            </cellValueFactory>
+                                        </TableColumn>
+                                        <TableColumn fx:id="rightTableTypeColumn" maxWidth="-1.0" minWidth="-1.0"
+                                                     prefWidth="-1.0" text="%table.type">
+                                            <cellValueFactory>
+                                                <PropertyValueFactory property="type"/>
+                                            </cellValueFactory>
+                                        </TableColumn>
                                     </columns>
                                 </TableView>
                             </children>
@@ -165,9 +206,6 @@
                     </items>
                 </SplitPane>
             </children>
-            <padding>
-                <Insets left="5.0" right="5.0"/>
-            </padding>
         </AnchorPane>
     </center>
 </BorderPane>
