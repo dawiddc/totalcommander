@@ -5,8 +5,7 @@
 <?import javafx.scene.control.cell.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity"
-            prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8"
+            minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.121"
             fx:controller="com.dawiddc.totalcommander.controllers.MainPaneController">
     <top>
         <VBox BorderPane.alignment="CENTER">
@@ -126,29 +125,29 @@
                                 </AnchorPane>
                                 <TableView fx:id="leftTableView" VBox.vgrow="ALWAYS">
                                     <columns>
-                                        <TableColumn fx:id="leftTableNameColumn" maxWidth="-1.0" minWidth="-1.0"
+                                        <TableColumn fx:id="leftTableNameColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.name">
                                             <cellValueFactory>
-                                                <PropertyValueFactory property="name"/>
+                                                <PropertyValueFactory property="fileName"/>
                                             </cellValueFactory>
                                         </TableColumn>
-                                        <TableColumn fx:id="leftTableSizeColumn" maxWidth="-1.0" minWidth="-1.0"
+                                        <TableColumn fx:id="leftTableSizeColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.size">
                                             <cellValueFactory>
                                                 <PropertyValueFactory property="size"/>
                                             </cellValueFactory>
                                         </TableColumn>
-                                        <TableColumn fx:id="leftTableDateColumn" maxWidth="-1.0" minWidth="-1.0"
+                                        <TableColumn fx:id="leftTableDateColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.date">
                                             <cellValueFactory>
 
-                                                <PropertyValueFactory property="date"/>
+                                                <PropertyValueFactory property="lastModifiedDate"/>
                                             </cellValueFactory>
                                         </TableColumn>
-                                        <TableColumn fx:id="leftTableTypeColumn" maxWidth="-1.0" minWidth="-1.0"
+                                        <TableColumn fx:id="leftTableTypeColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.type">
                                             <cellValueFactory>
-                                                <PropertyValueFactory property="type"/>
+                                                <PropertyValueFactory property="fileType"/>
                                             </cellValueFactory>
                                         </TableColumn>
                                     </columns>
@@ -172,28 +171,28 @@
                                 </AnchorPane>
                                 <TableView fx:id="rightTableView" VBox.vgrow="ALWAYS">
                                     <columns>
-                                        <TableColumn fx:id="rightTableNameColumn" maxWidth="-1.0" minWidth="-1.0"
+                                        <TableColumn fx:id="rightTableNameColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.name">
                                             <cellValueFactory>
-                                                <PropertyValueFactory property="name"/>
+                                                <PropertyValueFactory property="fileName"/>
                                             </cellValueFactory>
                                         </TableColumn>
-                                        <TableColumn fx:id="rightTableSizeColumn" maxWidth="-1.0" minWidth="-1.0"
+                                        <TableColumn fx:id="rightTableSizeColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.size">
                                             <cellValueFactory>
                                                 <PropertyValueFactory property="size"/>
                                             </cellValueFactory>
                                         </TableColumn>
-                                        <TableColumn fx:id="rightTableDateColumn" maxWidth="-1.0" minWidth="-1.0"
+                                        <TableColumn fx:id="rightTableDateColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.date">
                                             <cellValueFactory>
-                                                <PropertyValueFactory property="date"/>
+                                                <PropertyValueFactory property="lastModifiedDate"/>
                                             </cellValueFactory>
                                         </TableColumn>
-                                        <TableColumn fx:id="rightTableTypeColumn" maxWidth="-1.0" minWidth="-1.0"
+                                        <TableColumn fx:id="rightTableTypeColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.type">
                                             <cellValueFactory>
-                                                <PropertyValueFactory property="type"/>
+                                                <PropertyValueFactory property="fileType"/>
                                             </cellValueFactory>
                                         </TableColumn>
                                     </columns>

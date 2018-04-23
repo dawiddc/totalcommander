@@ -99,8 +99,8 @@ public class MainPaneController implements Observer {
         rightCurrentPathField.setEditable(false);
 
         selectDefaultLanguage();
-        listRoots();
         prepareTables();
+        listRoots();
     }
 
     @Override
@@ -175,14 +175,14 @@ public class MainPaneController implements Observer {
 
     public void prepareTables() {
 
-        leftTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        leftTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+        leftTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
+        leftTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("lastModifiedDate"));
         leftTableSizeColumn.setCellValueFactory(new PropertyValueFactory<>("size"));
-        leftTableTypeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
-        rightTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        rightTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+        leftTableTypeColumn.setCellValueFactory(new PropertyValueFactory<>("fileType"));
+        rightTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
+        rightTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("lastModifiedDate"));
         rightTableSizeColumn.setCellValueFactory(new PropertyValueFactory<>("size"));
-        rightTableTypeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
+        rightTableTypeColumn.setCellValueFactory(new PropertyValueFactory<>("fileType"));
 
         leftTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         rightTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -219,11 +219,11 @@ public class MainPaneController implements Observer {
     }
 
     public void refreshLeft() {
-        refreshTableView(leftCurrentPath, leftTableView, leftCurrentPathField);
+        refreshTableView(leftCurrentPathField.getText(), leftTableView, leftCurrentPathField);
     }
 
     public void refreshRight() {
-        refreshTableView(rightCurrentPath, rightTableView, rightCurrentPathField);
+        refreshTableView(rightCurrentPathField.getText(), rightTableView, rightCurrentPathField);
     }
 
     public void refreshTableViews() {
