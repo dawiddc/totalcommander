@@ -407,14 +407,77 @@ public class MainPaneController implements Observer {
     }
 
     public void deleteFromLeft() {
-
+        deleteFiles(leftTableView, leftCurrentPath);
     }
 
     public void deleteFromRight() {
-
+        deleteFiles(rightTableView, rightCurrentPath);
     }
 
-    public void cancelAction() {
+    public void deleteFiles(TableView tableView, String currentPath) {
 
+    }
+//        List<SystemObject> fileObjects;
+//        List<FileToDelete> filesToDelete = new ArrayList<>();
+//        File source;
+//        if ((fileObjects =  tableView.getSelectionModel().getSelectedItems()) != null){
+//            for (SystemObject fileObject : fileObjects) {
+//                source = new File(currentPath + fileObject.getFileName());
+//                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//                alert.setTitle(resourceBundle.getString("alertDeleteTitle"));
+//                alert.setHeaderText(resourceBundle.getString("alertDeleteHeader"));
+//                alert.setContentText(resourceBundle.getString("alertDeleteContent") + "\n" + fileObject.getFileName());
+//
+//                Optional<ButtonType> result = alert.showAndWait();
+//                if (result.get() == ButtonType.OK) {
+//                    filesToDelete.add(new FileToDelete(fileObject.getFileName(), source));
+//                }
+//            }
+//            if (!filesToDelete.isEmpty())
+//                executeDelete(filesToDelete);
+//        }
+//    }
+//
+//    private void executeDelete(List<FileToDelete> filesToDelete){
+//        //File backup = new File(filesToDelete.get(0).getSource().toString() + "..\\backup");
+//        try {
+//            showWaitingBox(1);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        deleteTask = new Task() {
+//            @Override
+//            protected Void call() throws Exception {
+//                Thread.sleep(1000);
+//                //FileUtils.forceMkdir(backup);
+//                for (FileToDelete fileToDelete : filesToDelete) {
+//                    if (!fileToDelete.getSource().isDirectory()) {
+//                        //FileUtils.copyFile(fileToDelete.getSource(), backup);
+//                        FileUtils.forceDelete(fileToDelete.getSource());
+//                    } else {
+//                        // FileUtils.copyDirectory(fileToDelete.getSource(), backup);
+//                        FileUtils.deleteDirectory(fileToDelete.getSource());
+//                    }
+//                }
+//                return null;
+//            }
+//        };
+//        new Thread(deleteTask).start();
+//
+//        deleteTask.setOnSucceeded(e -> {
+//            waitingBoxStage.close();
+//            //cleanBackup(backup);
+//            refreshTableViews();
+//        });
+//        deleteTask.setOnCancelled(e -> {
+//            refreshTableViews();
+//        });
+//    }
+
+
+    public void cancelAction() {
+        copyTask.cancel();
+//        deleteTask.cancel;
+//        moveTask.cancel;
     }
 }

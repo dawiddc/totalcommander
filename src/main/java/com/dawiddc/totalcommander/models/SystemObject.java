@@ -29,7 +29,7 @@ public class SystemObject {
                 this.file = file;
 
                 // data format
-                SimpleDateFormat sdf = new SimpleDateFormat(resourceBundle.getString("date-formater"));
+                SimpleDateFormat sdf = new SimpleDateFormat(resourceBundle.getString("date-formatter"));
                 this.lastModifiedDate = new Date(file.lastModified());
                 if (file.lastModified() != 0)
                     this.lastModified = sdf.format(lastModifiedDate);
