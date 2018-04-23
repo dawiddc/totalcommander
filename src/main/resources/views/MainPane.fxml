@@ -5,7 +5,8 @@
 <?import javafx.scene.control.cell.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.121"
+            minWidth="-Infinity"
+            prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.121"
             fx:controller="com.dawiddc.totalcommander.controllers.MainPaneController">
     <top>
         <VBox BorderPane.alignment="CENTER">
@@ -123,8 +124,15 @@
                                         <Insets bottom="3.0"/>
                                     </padding>
                                 </AnchorPane>
-                                <TableView fx:id="leftTableView" VBox.vgrow="ALWAYS">
+                                <TableView fx:id="leftTableView" onMouseClicked="#leftTableView_OnMouseClicked"
+                                           VBox.vgrow="ALWAYS">
                                     <columns>
+                                        <TableColumn fx:id="leftTableImageColumn" maxWidth="30.0" minWidth="30.0"
+                                                     prefWidth="30.0">
+                                            <cellValueFactory>
+                                                <PropertyValueFactory property="image "/>
+                                            </cellValueFactory>
+                                        </TableColumn>
                                         <TableColumn fx:id="leftTableNameColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.name">
                                             <cellValueFactory>
@@ -169,8 +177,15 @@
                                         <Insets bottom="3.0"/>
                                     </padding>
                                 </AnchorPane>
-                                <TableView fx:id="rightTableView" VBox.vgrow="ALWAYS">
+                                <TableView fx:id="rightTableView" onMouseClicked="#rightTableView_OnMouseClicked"
+                                           VBox.vgrow="ALWAYS">
                                     <columns>
+                                        <TableColumn fx:id="rightTableImageColumn" maxWidth="30.0" minWidth="30.0"
+                                                     prefWidth="30.0">
+                                            <cellValueFactory>
+                                                <PropertyValueFactory property="image "/>
+                                            </cellValueFactory>
+                                        </TableColumn>
                                         <TableColumn fx:id="rightTableNameColumn" maxWidth="-1.0" minWidth="100.0"
                                                      prefWidth="-1.0" text="%table.name">
                                             <cellValueFactory>

@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -66,6 +67,8 @@ public class MainPaneController implements Observer {
     @FXML
     private TableView<SystemObject> leftTableView;
     @FXML
+    private TableColumn<SystemObject, ImageView> leftTableImageColumn;
+    @FXML
     private TableColumn<SystemObject, String> leftTableNameColumn;
     @FXML
     private TableColumn<SystemObject, Long> leftTableSizeColumn;
@@ -73,6 +76,8 @@ public class MainPaneController implements Observer {
     private TableColumn<SystemObject, Date> leftTableDateColumn;
     @FXML
     private TableColumn<SystemObject, String> leftTableTypeColumn;
+    @FXML
+    private TableColumn<SystemObject, ImageView> rightTableImageColumn;
     @FXML
     private TableColumn<SystemObject, String> rightTableNameColumn;
     @FXML
@@ -176,10 +181,12 @@ public class MainPaneController implements Observer {
 
     public void prepareTables() {
 
+        leftTableImageColumn.setCellValueFactory(new PropertyValueFactory<>("image"));
         leftTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
         leftTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("lastModifiedDate"));
         leftTableSizeColumn.setCellValueFactory(new PropertyValueFactory<>("size"));
         leftTableTypeColumn.setCellValueFactory(new PropertyValueFactory<>("fileType"));
+        rightTableImageColumn.setCellValueFactory(new PropertyValueFactory<>("image"));
         rightTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
         rightTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("lastModifiedDate"));
         rightTableSizeColumn.setCellValueFactory(new PropertyValueFactory<>("size"));
@@ -219,6 +226,22 @@ public class MainPaneController implements Observer {
         }
     }
 
+    public void leftTableView_OnMouseClicked(MouseEvent event) {
+        if (event.getClickCount() == 2) {
+            String name = leftTableView.getSelectionModel().getSelectedItem().getFileName();
+            String path = leftCurrentPathField.getText() + name;
+            refreshTableView(path, leftTableView, leftCurrentPathField);
+        }
+    }
+
+    public void rightTableView_OnMouseClicked(MouseEvent event) {
+        if (event.getClickCount() == 2) {
+            String name = rightTableView.getSelectionModel().getSelectedItem().getFileName();
+            String path = rightCurrentPathField.getText() + name;
+            refreshTableView(path, rightTableView, rightCurrentPathField);
+        }
+    }
+
     public void refreshLeft() {
         refreshTableView(leftCurrentPathField.getText(), leftTableView, leftCurrentPathField);
     }
@@ -233,7 +256,6 @@ public class MainPaneController implements Observer {
     }
 
     private void refreshTableView(String refreshPath, TableView<SystemObject> tableView, TextField pathTextField) {
-        File file;
         List<SystemObject> systemObjectList = new ArrayList<>();
 
         SystemObject rootFile = new SystemObject(new File(refreshPath), resourceBundle);
@@ -244,14 +266,10 @@ public class MainPaneController implements Observer {
         ObservableList<SystemObject> observableList = FXCollections.observableArrayList(systemObjectList);
 
         String rootParentName = rootFile.getFile().getParent();
-        SystemObject rootParentFile = null;
+        SystemObject rootParentFile;
         if (rootParentName != null) {
-            try {
                 rootParentFile = new SystemObject(new File(rootParentName), resourceBundle);
-                rootParentFile.setFileName(new File(rootParentName).getCanonicalPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            rootParentFile.setFileName("\\..");
         } else {
             rootParentFile = rootFile;
             rootParentFile.setFileName("");
