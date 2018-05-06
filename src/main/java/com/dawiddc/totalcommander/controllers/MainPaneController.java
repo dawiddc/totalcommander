@@ -19,7 +19,6 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -32,6 +31,7 @@ public class MainPaneController implements Observer {
     private String rightCurrentPath;
 
     private Task copyTask;
+    private Task moveTask;
     private Task deleteTask;
     private ResourceBundle resourceBundle;
 
@@ -174,7 +174,7 @@ public class MainPaneController implements Observer {
         File[] roots = File.listRoots();
         for (File root : roots) {
             if (!root.toString().equals("A:\\"))
-                if(root.listFiles() != null)
+                if (root.listFiles() != null)
                     rootsList.add(root.toString());
         }
         leftRootChoicebox.setItems(rootsList);
@@ -233,7 +233,7 @@ public class MainPaneController implements Observer {
     public void leftTableView_OnMouseClicked(MouseEvent event) {
         if (event.getClickCount() == 2) {
             String name = "";
-            if(!leftCurrentPathField.getText().endsWith("\\"))
+            if (!leftCurrentPathField.getText().endsWith("\\"))
                 name = "\\";
             name += leftTableView.getSelectionModel().getSelectedItem().getFileName();
             String path = leftCurrentPathField.getText() + name;
@@ -243,7 +243,10 @@ public class MainPaneController implements Observer {
 
     public void rightTableView_OnMouseClicked(MouseEvent event) {
         if (event.getClickCount() == 2) {
-            String name = rightTableView.getSelectionModel().getSelectedItem().getFileName();
+            String name = "";
+            if (!rightCurrentPathField.getText().endsWith("\\"))
+                name = "\\";
+            name += rightTableView.getSelectionModel().getSelectedItem().getFileName();
             String path = rightCurrentPathField.getText() + name;
             refreshTableView(path, rightTableView, rightCurrentPathField);
         }
@@ -276,7 +279,7 @@ public class MainPaneController implements Observer {
         String rootParentName = rootFile.getFile().getParent();
         SystemObject rootParentFile;
         if (rootParentName != null) {
-                rootParentFile = new SystemObject(new File(rootParentName), resourceBundle);
+            rootParentFile = new SystemObject(new File(rootParentName), resourceBundle);
             rootParentFile.setFileName("\\..");
         } else {
             rootParentFile = rootFile;
@@ -306,12 +309,12 @@ public class MainPaneController implements Observer {
 
     public void copyToRight() {
         List<SystemObject> selectedObjects = leftTableView.getSelectionModel().getSelectedItems();
-        copyFiles(selectedObjects, rightCurrentPath);
+        copyFiles(selectedObjects, rightCurrentPathField.getText());
     }
 
     public void copyToLeft() {
         List<SystemObject> selectedObjects = rightTableView.getSelectionModel().getSelectedItems();
-        copyFiles(selectedObjects, leftCurrentPath);
+        copyFiles(selectedObjects, leftCurrentPathField.getText());
     }
 
 
@@ -329,7 +332,7 @@ public class MainPaneController implements Observer {
                     if (source.getCanonicalPath().equals(dest.getCanonicalPath())) {
                         return;
                     }
-                    if (dest.getName().equals(source.getName()))
+                    if (dest.getCanonicalPath().equals(source.getCanonicalPath()))
                         dest = throwOverwriteAlert(targetPath);
                     if (dest != null)
                         runCopyTask(source, dest);
@@ -397,7 +400,6 @@ public class MainPaneController implements Observer {
         new Thread(copyTask).start();
 
         copyTask.setOnSucceeded(e -> {
-//            waitingBoxStage.close();
             refreshTableViews();
         });
 
@@ -407,28 +409,80 @@ public class MainPaneController implements Observer {
     }
 
     public void moveToRight() {
-
+        List<SystemObject> selectedObjects = leftTableView.getSelectionModel().getSelectedItems();
+        moveFiles(selectedObjects, rightCurrentPathField.getText());
     }
 
     public void moveToLeft() {
+        List<SystemObject> selectedObjects = rightTableView.getSelectionModel().getSelectedItems();
+        moveFiles(selectedObjects, leftCurrentPathField.getText());
+    }
 
+    public void moveFiles(List<SystemObject> selectedObjects, String targetDirectoryPath) {
+
+        for (SystemObject object : selectedObjects) {
+            if (selectedObjects != null && object.getTypeOfFile() != SystemObjectFileType.ROOT) {
+                Path sourcePath = object.getFile().toPath();
+                Path targetPath = new File(targetDirectoryPath + "\\" + sourcePath.getFileName()).toPath();
+
+                File source = new File(sourcePath.toString());
+                File dest = new File(targetPath.toString());
+
+                try {
+                    /* Check whether in the same directory*/
+                    if (source.getCanonicalPath().equals(dest.getCanonicalPath())) {
+                        return;
+                    }
+                    if (dest.getCanonicalPath().equals(source.getCanonicalPath()))
+                        dest = throwOverwriteAlert(targetPath);
+                    if (dest != null)
+                        runMoveTask(source, dest);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void runMoveTask(File source, File dest) {
+
+        moveTask = new Task() {
+            @Override
+            protected Void call() throws Exception {
+                if (!source.isDirectory()) {
+                    FileUtils.moveFile(source, dest);
+                } else {
+                    FileUtils.moveDirectory(source, dest);
+                }
+                return null;
+            }
+        };
+        new Thread(moveTask).start();
+
+        moveTask.setOnSucceeded(e -> {
+            refreshTableViews();
+        });
+
+        moveTask.setOnCancelled(e -> {
+            refreshTableViews();
+        });
     }
 
     public void deleteFromLeft() {
-        deleteFiles(leftTableView, leftCurrentPath);
+        deleteFiles(leftTableView, leftCurrentPathField.getText());
     }
 
     public void deleteFromRight() {
-        deleteFiles(rightTableView, rightCurrentPath);
+        deleteFiles(rightTableView, rightCurrentPathField.getText());
     }
 
     public void deleteFiles(TableView tableView, String currentPath) {
         List<SystemObject> fileObjects;
         List<SystemObject> filesToDelete = new ArrayList<>();
         File source;
-        if ((fileObjects = tableView.getSelectionModel().getSelectedItems()) != null){
+        if ((fileObjects = tableView.getSelectionModel().getSelectedItems()) != null) {
             for (SystemObject fileObject : fileObjects) {
-                source = new File(currentPath + fileObject.getFileName());
+                source = new File(currentPath + "\\" + fileObject.getFileName());
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle(resourceBundle.getString("alertDeleteTitle"));
                 alert.setHeaderText(resourceBundle.getString("alertDeleteHeader"));
@@ -445,23 +499,20 @@ public class MainPaneController implements Observer {
     }
 
     private void executeDelete(List<SystemObject> filesToDelete) {
-                //File backup = new File(filesToDelete.get(0).getSource().toString() + "..\\backup");
+        //File backup = new File(filesToDelete.get(0).getSource().toString() + "..\\backup");
         try {
 //            showWaitingBox(1);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         deleteTask = new Task() {
             @Override
             protected Void call() throws Exception {
                 Thread.sleep(1000);
-                //FileUtils.forceMkdir(backup);
                 for (SystemObject fileToDelete : filesToDelete) {
                     if (!fileToDelete.isDirectory()) {
-                        //FileUtils.copyFile(fileToDelete.getSource(), backup);
                         FileUtils.forceDelete(fileToDelete.getFile());
                     } else {
-                        // FileUtils.copyDirectory(fileToDelete.getSource(), backup);
                         FileUtils.deleteDirectory(fileToDelete.getFile());
                     }
                 }
@@ -472,7 +523,6 @@ public class MainPaneController implements Observer {
 
         deleteTask.setOnSucceeded(e -> {
 //            waitingBoxStage.close();
-            //cleanBackup(backup);
             refreshTableViews();
         });
         deleteTask.setOnCancelled(e -> {
@@ -484,6 +534,6 @@ public class MainPaneController implements Observer {
     public void cancelAction() {
         copyTask.cancel();
         deleteTask.cancel();
-//        moveTask.cancel();
+        moveTask.cancel();
     }
 }
