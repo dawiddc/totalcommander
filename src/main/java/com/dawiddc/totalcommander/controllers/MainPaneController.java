@@ -93,6 +93,8 @@ public class MainPaneController implements Observer {
     private TextField leftCurrentPathField;
     @FXML
     private TextField rightCurrentPathField;
+    @FXML
+    private ProgressBar progressBar;
 
     public MainPaneController() {
     }
@@ -187,12 +189,12 @@ public class MainPaneController implements Observer {
 
         leftTableImageColumn.setCellValueFactory(new PropertyValueFactory<>("image"));
         leftTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
-        leftTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("lastModifiedDate"));
+        leftTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("lastModified"));
         leftTableSizeColumn.setCellValueFactory(new PropertyValueFactory<>("size"));
         leftTableTypeColumn.setCellValueFactory(new PropertyValueFactory<>("fileType"));
         rightTableImageColumn.setCellValueFactory(new PropertyValueFactory<>("image"));
         rightTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
-        rightTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("lastModifiedDate"));
+        rightTableDateColumn.setCellValueFactory(new PropertyValueFactory<>("lastModified"));
         rightTableSizeColumn.setCellValueFactory(new PropertyValueFactory<>("size"));
         rightTableTypeColumn.setCellValueFactory(new PropertyValueFactory<>("fileType"));
 
@@ -231,7 +233,7 @@ public class MainPaneController implements Observer {
     }
 
     public void leftTableView_OnMouseClicked(MouseEvent event) {
-        if (event.getClickCount() == 2) {
+        if (event.getClickCount() == 2 && leftTableView.getSelectionModel().getSelectedItem().getFileName() != null) {
             String name = "";
             if (!leftCurrentPathField.getText().endsWith("\\"))
                 name = "\\";
@@ -242,7 +244,7 @@ public class MainPaneController implements Observer {
     }
 
     public void rightTableView_OnMouseClicked(MouseEvent event) {
-        if (event.getClickCount() == 2) {
+        if (event.getClickCount() == 2 && rightTableView.getSelectionModel().getSelectedItem().getFileName() != null) {
             String name = "";
             if (!rightCurrentPathField.getText().endsWith("\\"))
                 name = "\\";
@@ -285,7 +287,6 @@ public class MainPaneController implements Observer {
             rootParentFile = rootFile;
             rootParentFile.setFileName("");
         }
-
         rootParentFile.setLastModified("");
         rootParentFile.setFileType("");
         rootParentFile.setTypeOfFile(SystemObjectFileType.ROOT);
@@ -332,10 +333,12 @@ public class MainPaneController implements Observer {
                     if (source.getCanonicalPath().equals(dest.getCanonicalPath())) {
                         return;
                     }
-                    if (dest.getCanonicalPath().equals(source.getCanonicalPath()))
+                    if (dest.exists())
                         dest = throwOverwriteAlert(targetPath);
-                    if (dest != null)
+                    if (dest != null) {
                         runCopyTask(source, dest);
+                        activateProgressBar(copyTask);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -400,10 +403,14 @@ public class MainPaneController implements Observer {
         new Thread(copyTask).start();
 
         copyTask.setOnSucceeded(e -> {
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
             refreshTableViews();
         });
 
         copyTask.setOnCancelled(e -> {
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
             refreshTableViews();
         });
     }
@@ -433,10 +440,12 @@ public class MainPaneController implements Observer {
                     if (source.getCanonicalPath().equals(dest.getCanonicalPath())) {
                         return;
                     }
-                    if (dest.getCanonicalPath().equals(source.getCanonicalPath()))
+                    if (dest.exists())
                         dest = throwOverwriteAlert(targetPath);
-                    if (dest != null)
+                    if (dest != null) {
                         runMoveTask(source, dest);
+                        activateProgressBar(moveTask);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -460,10 +469,14 @@ public class MainPaneController implements Observer {
         new Thread(moveTask).start();
 
         moveTask.setOnSucceeded(e -> {
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
             refreshTableViews();
         });
 
         moveTask.setOnCancelled(e -> {
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
             refreshTableViews();
         });
     }
@@ -493,12 +506,14 @@ public class MainPaneController implements Observer {
                     filesToDelete.add(new SystemObject(fileObject.getFile(), resourceBundle));
                 }
             }
-            if (!filesToDelete.isEmpty())
-                executeDelete(filesToDelete);
+            if (!filesToDelete.isEmpty()) {
+                runDeleteTask(filesToDelete);
+                activateProgressBar(deleteTask);
+            }
         }
     }
 
-    private void executeDelete(List<SystemObject> filesToDelete) {
+    private void runDeleteTask(List<SystemObject> filesToDelete) {
         //File backup = new File(filesToDelete.get(0).getSource().toString() + "..\\backup");
         try {
 //            showWaitingBox(1);
@@ -523,17 +538,30 @@ public class MainPaneController implements Observer {
 
         deleteTask.setOnSucceeded(e -> {
 //            waitingBoxStage.close();
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
             refreshTableViews();
         });
         deleteTask.setOnCancelled(e -> {
+            progressBar.progressProperty().unbind();
+            progressBar.setProgress(0);
             refreshTableViews();
         });
     }
 
+    public void activateProgressBar(final Task<?> task) {
+        progressBar.progressProperty().unbind();
+        progressBar.setProgress(-1F);
+        progressBar.progressProperty().bind(task.progressProperty());
+    }
+
 
     public void cancelAction() {
-        copyTask.cancel();
-        deleteTask.cancel();
-        moveTask.cancel();
+        if (copyTask != null)
+            copyTask.cancel();
+        if (deleteTask != null)
+            deleteTask.cancel();
+        if (moveTask != null)
+            moveTask.cancel();
     }
 }
