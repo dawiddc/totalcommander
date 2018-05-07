@@ -25,7 +25,7 @@ import java.util.*;
 
 public class MainPaneController implements Observer {
 
-    private BundleManager bundleManager = new BundleManager(new Locale("en"));
+    private final BundleManager bundleManager = new BundleManager(new Locale("en"));
 
     private String leftCurrentPath;
     private String rightCurrentPath;
@@ -127,13 +127,15 @@ public class MainPaneController implements Observer {
         }
     }
 
-    public void changeLanguageToEng() {
+    @FXML
+    private void changeLanguageToEng() {
         polishMenuItem.setVisible(true);
         englishMenuItem.setVisible(false);
         bundleManager.changeAndNotify(new Locale("en"));
     }
 
-    public void changeLanguageToPolish() {
+    @FXML
+    private void changeLanguageToPolish() {
         polishMenuItem.setVisible(false);
         englishMenuItem.setVisible(true);
         bundleManager.changeAndNotify(new Locale("pl"));
@@ -185,7 +187,7 @@ public class MainPaneController implements Observer {
         rightRootChoicebox.getSelectionModel().selectFirst();
     }
 
-    public void prepareTables() {
+    private void prepareTables() {
 
         leftTableImageColumn.setCellValueFactory(new PropertyValueFactory<>("image"));
         leftTableNameColumn.setCellValueFactory(new PropertyValueFactory<>("fileName"));
@@ -203,66 +205,53 @@ public class MainPaneController implements Observer {
     }
 
     public void leftRootChoicebox_OnAction(ActionEvent e) {
-        try {
-            refreshTableView(leftRootChoicebox.getSelectionModel().getSelectedItem().toString(), leftTableView, leftCurrentPathField);
-            int leftChoiceBoxLastSelected = leftRootChoicebox.getSelectionModel().getSelectedIndex();
-            leftRootChoicebox.getSelectionModel().select(leftChoiceBoxLastSelected);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-//            try {
-//                showReadErrorMessage(leftRootChoicebox.getSelectionModel().getSelectedItem().toString());
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-        }
+        rootChoicebox_onAction(leftRootChoicebox, leftTableView, leftCurrentPathField);
     }
 
     public void rightRootChoicebox_OnAction(ActionEvent e) {
+        rootChoicebox_onAction(rightRootChoicebox, rightTableView, rightCurrentPathField);
+    }
+
+    private void rootChoicebox_onAction(ChoiceBox rootChoiceBox, TableView<SystemObject> tableView, TextField currentPathField) {
         try {
-            refreshTableView(leftRootChoicebox.getSelectionModel().getSelectedItem().toString(), rightTableView, rightCurrentPathField);
-            int rightChoiceBoxLastSelected = leftRootChoicebox.getSelectionModel().getSelectedIndex();
-            leftRootChoicebox.getSelectionModel().select(rightChoiceBoxLastSelected);
+            refreshTableView(rootChoiceBox.getSelectionModel().getSelectedItem().toString(), tableView, currentPathField);
+            int leftChoiceBoxLastSelected = rootChoiceBox.getSelectionModel().getSelectedIndex();
+            rootChoiceBox.getSelectionModel().select(leftChoiceBoxLastSelected);
         } catch (Exception ex) {
             ex.printStackTrace();
-//            try {
-////                showReadErrorMessage(leftRootChoicebox.getSelectionModel().getSelectedItem().toString());
-//            }catch (Exception ex){
-//                ex.printStackTrace();
-//            }
         }
     }
 
     public void leftTableView_OnMouseClicked(MouseEvent event) {
-        if (event.getClickCount() == 2 && leftTableView.getSelectionModel().getSelectedItem().getFileName() != null) {
-            String name = "";
-            if (!leftCurrentPathField.getText().endsWith("\\"))
-                name = "\\";
-            name += leftTableView.getSelectionModel().getSelectedItem().getFileName();
-            String path = leftCurrentPathField.getText() + name;
-            refreshTableView(path, leftTableView, leftCurrentPathField);
-        }
+        tableView_onMouseClicked(event, leftTableView, leftCurrentPathField);
     }
 
     public void rightTableView_OnMouseClicked(MouseEvent event) {
-        if (event.getClickCount() == 2 && rightTableView.getSelectionModel().getSelectedItem().getFileName() != null) {
+        tableView_onMouseClicked(event, rightTableView, rightCurrentPathField);
+    }
+
+    private void tableView_onMouseClicked(MouseEvent event, TableView<SystemObject> tableView, TextField currentPathField) {
+        if (event.getClickCount() == 2 && tableView.getSelectionModel().getSelectedItem().getFileName() != null) {
             String name = "";
-            if (!rightCurrentPathField.getText().endsWith("\\"))
+            if (!currentPathField.getText().endsWith("\\"))
                 name = "\\";
-            name += rightTableView.getSelectionModel().getSelectedItem().getFileName();
-            String path = rightCurrentPathField.getText() + name;
-            refreshTableView(path, rightTableView, rightCurrentPathField);
+            name += tableView.getSelectionModel().getSelectedItem().getFileName();
+            String path = currentPathField.getText() + name;
+            refreshTableView(path, tableView, currentPathField);
         }
     }
 
-    public void refreshLeft() {
+    @FXML
+    private void refreshLeft() {
         refreshTableView(leftCurrentPathField.getText(), leftTableView, leftCurrentPathField);
     }
 
-    public void refreshRight() {
+    @FXML
+    private void refreshRight() {
         refreshTableView(rightCurrentPathField.getText(), rightTableView, rightCurrentPathField);
     }
 
-    public void refreshTableViews() {
+    private void refreshTableViews() {
         refreshLeft();
         refreshRight();
     }
@@ -319,9 +308,9 @@ public class MainPaneController implements Observer {
     }
 
 
-    public void copyFiles(List<SystemObject> selectedObjects, String targetDirectoryPath) {
+    private void copyFiles(List<SystemObject> selectedObjects, String targetDirectoryPath) {
         for (SystemObject object : selectedObjects) {
-            if (selectedObjects != null && object.getTypeOfFile() != SystemObjectFileType.ROOT) {
+            if (object.getTypeOfFile() != SystemObjectFileType.ROOT) {
                 Path sourcePath = object.getFile().toPath();
                 Path targetPath = new File(targetDirectoryPath + "\\" + sourcePath.getFileName()).toPath();
 
@@ -375,8 +364,8 @@ public class MainPaneController implements Observer {
         boolean unique = false;
         int i = 1;
         while (!unique) {
+            unique = true;
             for (File file : dirFiles) {
-                unique = true;
                 if (file.getName().equals(newFileName)) {
                     newFileName = " (" + i + ")" + destFile.getName();
                     i++;
@@ -384,7 +373,7 @@ public class MainPaneController implements Observer {
                 }
             }
         }
-        return Paths.get(dirFiles + "\\" + newFileName);
+        return Paths.get(destFile.getParent() + "\\" + newFileName);
     }
 
     private void runCopyTask(File source, File dest) {
@@ -425,10 +414,9 @@ public class MainPaneController implements Observer {
         moveFiles(selectedObjects, leftCurrentPathField.getText());
     }
 
-    public void moveFiles(List<SystemObject> selectedObjects, String targetDirectoryPath) {
-
+    private void moveFiles(List<SystemObject> selectedObjects, String targetDirectoryPath) {
         for (SystemObject object : selectedObjects) {
-            if (selectedObjects != null && object.getTypeOfFile() != SystemObjectFileType.ROOT) {
+            if (object.getTypeOfFile() != SystemObjectFileType.ROOT) {
                 Path sourcePath = object.getFile().toPath();
                 Path targetPath = new File(targetDirectoryPath + "\\" + sourcePath.getFileName()).toPath();
 
@@ -489,13 +477,11 @@ public class MainPaneController implements Observer {
         deleteFiles(rightTableView, rightCurrentPathField.getText());
     }
 
-    public void deleteFiles(TableView tableView, String currentPath) {
+    private void deleteFiles(TableView tableView, String currentPath) {
         List<SystemObject> fileObjects;
         List<SystemObject> filesToDelete = new ArrayList<>();
-        File source;
         if ((fileObjects = tableView.getSelectionModel().getSelectedItems()) != null) {
             for (SystemObject fileObject : fileObjects) {
-                source = new File(currentPath + "\\" + fileObject.getFileName());
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle(resourceBundle.getString("alertDeleteTitle"));
                 alert.setHeaderText(resourceBundle.getString("alertDeleteHeader"));
@@ -514,12 +500,6 @@ public class MainPaneController implements Observer {
     }
 
     private void runDeleteTask(List<SystemObject> filesToDelete) {
-        //File backup = new File(filesToDelete.get(0).getSource().toString() + "..\\backup");
-        try {
-//            showWaitingBox(1);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         deleteTask = new Task() {
             @Override
             protected Void call() throws Exception {
@@ -549,7 +529,7 @@ public class MainPaneController implements Observer {
         });
     }
 
-    public void activateProgressBar(final Task<?> task) {
+    private void activateProgressBar(final Task<?> task) {
         progressBar.progressProperty().unbind();
         progressBar.setProgress(-1F);
         progressBar.progressProperty().bind(task.progressProperty());

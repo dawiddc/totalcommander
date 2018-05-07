@@ -8,10 +8,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class SystemObject {
     private File file;
@@ -184,7 +181,7 @@ public class SystemObject {
 
     public List<SystemObject> listSystemFiles(ResourceBundle properties) {
         List<SystemObject> systemFiles = new ArrayList<>();
-        for (File f : getFile().listFiles()) {
+        for (File f : Objects.requireNonNull(getFile().listFiles())) {
             systemFiles.add(new SystemObject(f, properties));
         }
         return systemFiles;
